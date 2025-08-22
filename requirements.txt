@@ -1,0 +1,11 @@
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+
+# local summarization (no API keys)
+transformers==4.55.3
+torch==2.8.0
+
+# text extractors
+youtube-transcript-api==0.6.2
+newspaper3k==0.2.8
+lxml_html_clean==0.4.2
