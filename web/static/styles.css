@@ -1,193 +1,153 @@
 /* --------- Design system --------- */
 :root {
-  /* Dark */
-  --bg: #0b1020;
-  --bg-2: #0c1326;
-  --panel: #0e1630;
-  --text: #e7ecf6;
-  --muted: #9fb0d0;
-  --line: #192a52;
-  --ring: #21407a;
-  --shadow: rgba(0,0,0,.35);
-  --accent: #22c55e;   /* green */
-  --accent2: #06b6d4;  /* cyan */
-
-  /* Sizing */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --pad: 16px;
+  --bg: #0d1117;
+  --panel: #161b22;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --border: #30363d;
+  --accent: #3b82f6; /* blue */
+  --accent2: #06b6d4; /* cyan */
+  --radius: 8px;
+  --shadow: 0 2px 6px rgba(0,0,0,0.35);
+  --transition: 0.2s ease;
 }
 
-/* --------- Base / reset --------- */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
   color: var(--text);
-  background:
-    radial-gradient(1000px 600px at 120% -10%, #0f1b33 0%, transparent 60%),
-    radial-gradient(1100px 700px at -10% 0%, #0b1430 0%, transparent 60%),
-    linear-gradient(120deg, #081226, #09172c 55%, #071326);
+  line-height: 1.5;
 }
 
-/* Smooth text */
-h1, h2, h3, p, small, label, input, textarea, button { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 1rem;
+}
 
-/* --------- Layout --------- */
-.container { width: min(980px, 92%); margin-inline: auto; }
+/* Header */
 .header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 28px 0 10px;
-}
-.brand h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: .2px; }
-.sub { margin: 0; color: var(--muted); font-size: 15px; }
-
-.actions { display: flex; gap: 10px; }
-
-/* Card that holds tabs + content */
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: 0 10px 45px var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
 }
 
-/* --------- Tabs --------- */
-.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 14px; }
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--accent);
+}
+
+.sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Buttons */
+.btn {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.btn:hover {
+  background: var(--accent2);
+  transform: translateY(-2px);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn.ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .tab-btn {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  background: #0f1b36;
-  border: 1px solid var(--line);
-  color: #cfe3ff; cursor: pointer;
-  transition: background .15s ease, transform .02s ease, box-shadow .15s ease;
-}
-.tab-btn:hover { background: #11204a; }
-.tab-btn.bg-white {
-  background: #132a57;
-  border-color: var(--ring);
-  box-shadow: 0 0 0 2px #0e2248 inset, 0 4px 18px rgba(0,0,0,.25);
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  background: var(--panel);
+  color: var(--text);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
 }
 
-/* --------- Inputs --------- */
-.label { display: block; margin: 10px 2px 6px; color: #c7d2fe; font-weight: 600; }
+.tab-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.panel {
+  background: var(--panel);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+
+/* Inputs */
 .input, .textarea {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  background: #0b1638;
-  border: 1px solid var(--line);
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #0d1117;
   color: var(--text);
-  outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-}
-.input::placeholder, .textarea::placeholder { color: #93a5c9; }
-.input:focus, .textarea:focus {
-  border-color: var(--ring);
-  box-shadow: 0 0 0 4px rgba(33,64,122,.35);
-  background: #0b1a45;
-}
-.textarea { resize: vertical; min-height: 160px; }
-
-/* Put URL fields + buttons on one line on large screens */
-@media (min-width: 720px) {
-  #panel-youtube .input, #panel-website .input { width: 72%; display: inline-block; }
-  #panel-youtube .btn,   #panel-website .btn   { margin-left: 10px; vertical-align: middle; }
+  font-size: 0.95rem;
+  margin: 0.5rem 0 1rem 0;
 }
 
-/* --------- Buttons --------- */
-.btn {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 0; cursor: pointer; font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #00121a;
-  transition: transform .02s ease, filter .15s ease, box-shadow .15s ease;
-  box-shadow: 0 6px 18px rgba(6,182,212,.25);
+.textarea {
+  resize: vertical;
 }
-.btn:hover { filter: brightness(1.05); }
-.btn:active { transform: translateY(1px); box-shadow: 0 3px 12px rgba(6,182,212,.25); }
-.btn.ghost {
-  background: transparent; color: var(--text);
-  border: 1px solid #23406d; font-weight: 600;
-  box-shadow: none;
-}
-.btn.ghost:hover { background: #0f1f43; }
 
-/* Row helpers */
-.row { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
-.row.end { justify-content: flex-end; }
-
-/* --------- Status / Output --------- */
+/* Status/output */
 .status {
-  min-height: 24px; margin: 12px 2px 6px; color: var(--muted);
-}
-.output {
-  margin-top: 8px; padding: 14px;
-  background: #081027;
-  border: 1px solid #122041;
-  border-radius: var(--radius-md);
-  line-height: 1.55;
-  overflow: auto; max-height: 56vh; white-space: pre-wrap;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
-/* Tips */
-.tip {
-  border: 1px dashed #28406f; background: #0b183a;
-  color: #d6e6ff;
-  border-radius: var(--radius-sm); padding: 10px 12px; margin: 4px 0 12px;
+.output {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  line-height: 1.4;
 }
-.api-needed strong { color: var(--accent2); }
 
 /* Footer */
-.foot { color: var(--muted); text-align: center; padding: 18px 0 40px; }
-
-/* Panels visibility */
-.panel { margin-top: 4px; }
-.hidden { display: none; }
-
-/* --------- Dialog (Settings) --------- */
-dialog::backdrop { background: rgba(0,0,0,.45); }
-#settings { border: 0; border-radius: 16px; padding: 0; background: transparent; }
-.settings-card {
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 16px; padding: 18px; width: min(520px, 92vw);
-  box-shadow: 0 10px 40px var(--shadow);
-}
-.settings-card h2 { margin: 0 0 12px; }
-.muted { color: var(--muted); font-size: .95em; }
-
-/* --------- Focus visibility for keyboard users --------- */
-:focus-visible {
-  outline: 2px solid var(--accent2);
-  outline-offset: 2px;
-  border-radius: 10px;
+.foot {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
-/* --------- Light mode fallback (optional) --------- */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f7f9ff;
-    --bg-2: #ffffff;
-    --panel: #ffffff;
-    --text: #0c1220;
-    --muted: #5a6b86;
-    --line: #dfe7f5;
-    --ring: #9ab5f2;
-    --shadow: rgba(13, 28, 55, .08);
-  }
-  body {
-    background:
-      radial-gradient(1200px 700px at 0% -10%, #eaf1ff 0%, transparent 60%),
-      linear-gradient(180deg, #f4f7fe, #f8faff);
-  }
-  .tab-btn { background: #eef3ff; color: #1a2a4a; }
-  .tab-btn.bg-white { background: #dfe9ff; }
-  .input, .textarea { background: #f7faff; }
-  .output { background: #f7faff; border-color: #e3eaf9; }
-}
