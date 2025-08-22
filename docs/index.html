@@ -11,7 +11,7 @@
   <main class="wrap">
     <header class="head">
       <h1>AI Study Helper</h1>
-      <p class="sub">Paste a YouTube or website link (or switch to Text) and get a clean summary.</p>
+      <p class="sub">Paste a link (YouTube or article) or switch to Text and get a clean summary.</p>
     </header>
 
     <section class="card">
@@ -36,22 +36,11 @@
       <pre id="output" class="output"></pre>
     </section>
 
-    <section class="card">
-      <h2 class="h2">Settings</h2>
-      <label class="label">API Base URL</label>
-      <input id="api-base" class="input" placeholder="https://your-api.example.com" />
-      <div class="row">
-        <button id="save-api" class="btn ghost">Save</button>
-        <small class="muted">Needed for Link mode. Text mode works without it.</small>
-      </div>
-    </section>
-
     <footer class="foot">
-      <small>Tip: add <code>?api=https://your-api.example.com</code> to the page URL to set the API quickly.</small>
+      <small>Tip: To test locally, run the API with <code>uvicorn app.main:app --reload</code> and this page with <code>python -m http.server -d docs 5173</code>.</small>
     </footer>
   </main>
 
   <script type="module" src="./static/main.js"></script>
 </body>
 </html>
-<!-- redeploy 2025-08-22T15:28:52.5036069-06:00 -->
