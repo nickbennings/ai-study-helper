@@ -26,7 +26,7 @@ AI Study Helper is a lightweight web application designed to generate summaries 
 
 You can try the app here:  
 
-link
+https://nickbennings.github.io/ai-study-helper/
 
 
 
