@@ -8,84 +8,48 @@
   <meta name="color-scheme" content="dark light">
 </head>
 <body>
-  <header class="container header">
-    <div class="brand">
+  <main class="wrap">
+    <header class="head">
       <h1>AI Study Helper</h1>
-      <p class="sub">Summarize YouTube, websites, or plain text.</p>
-    </div>
-    <div class="actions">
-      <button id="open-settings" class="btn ghost">Settings</button>
-      <a class="btn" id="gh-link" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </div>
-  </header>
+      <p class="sub">Paste a YouTube or website link (or switch to Text) and get a clean summary.</p>
+    </header>
 
-  <main class="container card">
-    <nav class="tabs">
-      <button id="tab-youtube" class="tab-btn">YouTube</button>
-      <button id="tab-website" class="tab-btn">Website</button>
-      <button id="tab-text" class="tab-btn">Text</button>
-    </nav>
-
-    <!-- YouTube -->
-    <section id="panel-youtube" class="panel hidden">
-      <div class="tip api-needed hidden" id="yt-api-tip">
-        <strong>Remote API required</strong>. GitHub Pages can’t fetch transcripts directly (CORS).
-        Set an API base in <em>Settings</em> or add <code>?api=https://your-api.example.com</code> to the URL.
+    <section class="card">
+      <div class="mode">
+        <button id="mode-link" class="tab active">Link</button>
+        <button id="mode-text" class="tab">Text</button>
       </div>
-      <label for="yt-url" class="label">YouTube URL</label>
-      <input id="yt-url" class="input" placeholder="https://www.youtube.com/watch?v=..." />
-      <button id="yt-go" class="btn">Summarize</button>
+
+      <div id="panel-link">
+        <label class="label">Link</label>
+        <input id="input-link" class="input" placeholder="https://example.com or https://youtube.com/…" />
+        <button id="go-link" class="btn">Summarize</button>
+      </div>
+
+      <div id="panel-text" class="hidden">
+        <label class="label">Paste text</label>
+        <textarea id="input-text" class="textarea" rows="8" placeholder="Paste text here…"></textarea>
+        <button id="go-text" class="btn">Summarize</button>
+      </div>
+
+      <p id="status" class="status" aria-live="polite"></p>
+      <pre id="output" class="output"></pre>
     </section>
 
-    <!-- Website -->
-    <section id="panel-website" class="panel hidden">
-      <div class="tip api-needed hidden" id="web-api-tip">
-        <strong>Remote API required</strong>. Browser CORS often blocks direct scraping.
-        Set an API base in <em>Settings</em> or add <code>?api=https://your-api.example.com</code>.
-      </div>
-      <label for="web-url" class="label">Website URL</label>
-      <input id="web-url" class="input" placeholder="https://example.com/article" />
-      <button id="web-go" class="btn">Summarize</button>
-    </section>
-
-    <!-- Text -->
-    <section id="panel-text" class="panel">
-      <label for="raw-text" class="label">Paste text</label>
-      <textarea id="raw-text" class="textarea" rows="10" placeholder="Paste text to summarize..."></textarea>
-      <div class="row">
-        <button id="text-go" class="btn">Summarize</button>
-        <label class="mini">
-          <input type="checkbox" id="client-advanced" />
-          Client-only: use slightly smarter summary
-        </label>
-      </div>
-    </section>
-
-    <p id="status" class="status" aria-live="polite"></p>
-    <pre id="output" class="output" aria-live="polite"></pre>
-  </main>
-
-  <footer class="container foot">
-    <small>
-      Tip: Deploy this folder to GitHub Pages. For full features, deploy your API elsewhere and set its base URL in Settings.
-    </small>
-  </footer>
-
-  <!-- Settings dialog -->
-  <dialog id="settings">
-    <form method="dialog" class="settings-card">
-      <h2>Settings</h2>
-      <label class="label" for="api-base">API Base URL</label>
+    <section class="card">
+      <h2 class="h2">Settings</h2>
+      <label class="label">API Base URL</label>
       <input id="api-base" class="input" placeholder="https://your-api.example.com" />
-      <p class="muted">
-        Used for YouTube/Website summarization. Leave blank to use client-only Text mode.
-      </p>
-      <div class="row end">
-        <button value="cancel" class="btn ghost">Cancel</button>
-        <button id="save-settings" value="default" class="btn">Save</button>
+      <div class="row">
+        <button id="save-api" class="btn ghost">Save</button>
+        <small class="muted">Needed for Link mode. Text mode works without it.</small>
       </div>
-    </form>
-  </dialog>
+    </section>
+
+    <footer class="foot">
+      <small>Tip: add <code>?api=https://your-api.example.com</code> to the page URL to set the API quickly.</small>
+    </footer>
+  </main>
 
   <script type="module" src="./static/main.js"></script>
 </body>

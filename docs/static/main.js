@@ -1,153 +1,74 @@
-// --- API base detection & settings ---
+// --- helpers
 const $ = (id) => document.getElementById(id);
-
-// read from ?api=, localStorage, or data-attr (not used here)
-const urlApi = new URLSearchParams(location.search).get("api");
-if (urlApi) localStorage.setItem("apiBase", urlApi);
+const statusEl = $("status");
+const outEl = $("output");
+const apiParam = new URLSearchParams(location.search).get("api");
+if (apiParam) localStorage.setItem("apiBase", apiParam);
 let API = (localStorage.getItem("apiBase") || "").trim();
 
-const isApiEnabled = () => !!API;
-function setApiBase(next) {
-  API = (next || "").trim();
-  if (API) localStorage.setItem("apiBase", API);
-  else localStorage.removeItem("apiBase");
-  renderApiHints();
-}
+function setStatus(t=""){ statusEl.textContent = t; }
+function setOut(t=""){ outEl.textContent = t; }
+function isYouTube(u){ return /(?:youtu\.be|youtube\.com)/i.test(u); }
 
-// --- UI tab logic (matches your original IDs) ---
-const panels = {
-  youtube: $("panel-youtube"),
-  website: $("panel-website"),
-  text: $("panel-text"),
+$("save-api").onclick = () => {
+  const v = $("api-base").value.trim();
+  if (v) localStorage.setItem("apiBase", v); else localStorage.removeItem("apiBase");
+  API = (localStorage.getItem("apiBase") || "").trim();
+  setStatus(API ? `API set: ${API}` : "API cleared");
 };
-function show(el){ el.classList.remove("hidden"); }
-function hide(el){ el.classList.add("hidden"); }
-function setTab(name) {
-  for (const key of Object.keys(panels)) {
-    (key === name ? show : hide)(panels[key]);
-  }
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    const active = btn.id === `tab-${name}`;
-    btn.classList.toggle("bg-white", active);
-    btn.classList.toggle("shadow", active);
+$("api-base").value = API;
+
+// tabs
+const linkTab = $("mode-link"), textTab = $("mode-text");
+const panelLink = $("panel-link"), panelText = $("panel-text");
+function showLink(){ linkTab.classList.add("active"); textTab.classList.remove("active"); panelLink.classList.remove("hidden"); panelText.classList.add("hidden"); }
+function showText(){ textTab.classList.add("active"); linkTab.classList.remove("active"); panelText.classList.remove("hidden"); panelLink.classList.add("hidden"); }
+linkTab.onclick = showLink; textTab.onclick = showText;
+
+// API call
+async function post(endpoint, body){
+  if (!API) throw new Error("No API set. Enter it in Settings.");
+  const res = await fetch(`${API}${endpoint}`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(body)
   });
-}
-$("tab-youtube").onclick = () => setTab("youtube");
-$("tab-website").onclick = () => setTab("website");
-$("tab-text").onclick = () => setTab("text");
-
-// --- Settings dialog ---
-const dlg = $("settings");
-$("open-settings").onclick = () => {
-  $("api-base").value = API || "";
-  dlg.showModal();
-};
-$("save-settings").onclick = (e) => {
-  e.preventDefault();
-  setApiBase($("api-base").value);
-  dlg.close();
-};
-
-// --- Status/output helpers ---
-function setStatus(msg=""){ $("status").textContent = msg; }
-function setOutput(text=""){ $("output").textContent = text; }
-
-// --- API call helper ---
-async function call(endpoint, body) {
-  if (!isApiEnabled()) throw new Error("No API base configured");
-  setStatus("Working…"); setOutput("");
-  try {
-    const res = await fetch(`${API}${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      const msg = typeof data?.detail === "string" ? data.detail : res.statusText;
-      throw new Error(msg);
-    }
-    setStatus("Done."); return data;
-  } finally { /* keep status for a moment */ }
+  let data = null; try { data = await res.json(); } catch {}
+  if (!res.ok) throw new Error((data && (data.detail||data.error||data.message)) || `${res.status} ${res.statusText}`);
+  return data || {};
 }
 
-// --- Client-only text summarizer (fallback) ---
-function clientSummarize(text, advanced=false) {
-  const t = (text || "").replace(/\s+/g," ").trim();
+// client-only text summary (fallback)
+function clientSummarize(text){
+  const t = (text||"").replace(/\s+/g," ").trim();
   if (!t) return "No text provided.";
-  if (!advanced) {
-    // naive: first ~5 sentences up to ~600 chars
-    const sentences = t.split(/(?<=[.!?])\s+/).slice(0, 6).join(" ");
-    return sentences.slice(0, 700);
-  }
-  // slightly smarter: score sentences by keyword frequency
-  const sents = t.split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 60);
-  const words = t.toLowerCase().match(/[a-z0-9']+/g) || [];
-  const stop = new Set("the a an of and to in is it for on with this that as by from be are was were at or not have has had you they we i his her their our your but if then than which who what when where how".split(" "));
-  const freq = Object.create(null);
-  for (const w of words) if (!stop.has(w)) freq[w] = (freq[w]||0)+1;
-  const scored = sents.map((s,i) => {
-    const ws = (s.toLowerCase().match(/[a-z0-9']+/g) || []).filter(w=>!stop.has(w));
-    const score = ws.reduce((acc,w)=>acc+(freq[w]||0), 0) / Math.sqrt(ws.length+1) + (i<3?0.5:0);
-    return { s, score };
-  });
-  scored.sort((a,b)=>b.score-a.score);
-  const pick = scored.slice(0, Math.min(5, Math.ceil(scored.length*0.25)) ).map(x=>x.s);
-  const summary = pick.join(" ").slice(0, 900);
-  return summary || t.slice(0, 900);
+  return t.split(/(?<=[.!?])\s+/).slice(0,5).join(" ").slice(0, 1200);
 }
 
-// --- Wire buttons ---
-$("yt-go").onclick = async () => {
-  const url = $("yt-url").value.trim();
-  if (!url) return setStatus("Please enter a YouTube URL.");
-  if (!isApiEnabled()) {
-    setStatus("YouTube requires a remote API (see Settings).");
-    return;
-  }
+// actions
+$("go-link").onclick = async () => {
+  const url = $("input-link").value.trim();
+  if (!url) return setStatus("Please paste a link.");
+  setStatus("Working…"); setOut("");
   try {
-    const { summary } = await call("/summarize/youtube", { url });
-    setOutput(summary);
-  } catch(e){ setStatus("Error: " + e.message); }
+    const endpoint = isYouTube(url) ? "/summarize/youtube" : "/summarize/website";
+    const { summary } = await post(endpoint, { url });
+    setOut(summary || "(no summary)");
+    setStatus("Done.");
+  } catch (e){ setStatus("Error: "+e.message); }
 };
 
-$("web-go").onclick = async () => {
-  const url = $("web-url").value.trim();
-  if (!url) return setStatus("Please enter a website URL.");
-  if (!isApiEnabled()) {
-    setStatus("Website mode requires a remote API (see Settings).");
-    return;
-  }
-  try {
-    const { summary } = await call("/summarize/website", { url });
-    setOutput(summary);
-  } catch(e){ setStatus("Error: " + e.message); }
-};
-
-$("text-go").onclick = async () => {
-  const text = $("raw-text").value.trim();
+$("go-text").onclick = async () => {
+  const text = $("input-text").value.trim();
   if (!text) return setStatus("Please paste some text.");
-  if (isApiEnabled()) {
-    try {
-      const { summary } = await call("/summarize/text", { text });
-      setOutput(summary);
-    } catch(e){ setStatus("Error: " + e.message); }
-  } else {
-    // client-only
-    const advanced = $("client-advanced").checked;
-    setOutput(clientSummarize(text, advanced));
-    setStatus("Done (client-only).");
-  }
+  setStatus("Working…"); setOut("");
+  try {
+    if (!API) { setOut(clientSummarize(text)); setStatus("Done (client-only)."); return; }
+    const { summary } = await post("/summarize/text", { text });
+    setOut(summary || "(no summary)");
+    setStatus("Done.");
+  } catch (e){ setStatus("Error: "+e.message); }
 };
 
-// --- API tips/hints visibility ---
-function renderApiHints() {
-  const needApi = !isApiEnabled();
-  const ytTip = $("yt-api-tip"), webTip = $("web-api-tip");
-  if (ytTip) ytTip.classList.toggle("hidden", !needApi);
-  if (webTip) webTip.classList.toggle("hidden", !needApi);
-}
-renderApiHints();
-
-// default tab on load
-setTab("youtube");
+// initial hint
+setStatus(API ? `API: ${API}` : "No API set. Text mode works without it.");
