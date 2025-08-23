@@ -11,12 +11,14 @@ function activate(btnId){
 }
 
 // ---------- API base detection ----------
-// Local dev: assume API on localhost.
-// GitHub Pages: leave blank for now. When we deploy, set DEFAULT_API_BASE to your HTTPS API.
 const isLocal = ["localhost","127.0.0.1"].includes(location.hostname);
-const DEFAULT_API_BASE = isLocal ? "http://127.0.0.1:8000" : ""; // <- set to your https API later
+const DEFAULT_API_BASE = isLocal
+  ? "http://127.0.0.1:8000"
+  : "https://ai-study-helper-u06m.onrender.com";   // your live API
 let API = (DEFAULT_API_BASE || "").trim();
 const hasApi = !!API;
+
+
 
 // ---------- tab wiring ----------
 $("tab-youtube").onclick = () => {
