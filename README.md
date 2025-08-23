@@ -17,52 +17,56 @@ AI Study Helper is a lightweight web application that generates concise summarie
 
 ## Live Demo
 
-The frontend is deployed on GitHub Pages:
-
+Frontend (GitHub Pages):
 [https://nickbennings.github.io/ai-study-helper/](https://nickbennings.github.io/ai-study-helper/)
+
+Optional backend API (FastAPI on Render, for developers):
+[https://ai-study-helper-u06m.onrender.com/docs](https://ai-study-helper-u06m.onrender.com/docs)
 
 ---
 
 ## Development Setup
 
 1. Clone the repository:
+   ```bash
+   git clone https://github.com/nickbennings/ai-study-helper.git
+   cd ai-study-helper
+   ```
 
-   <pre class="overflow-visible!" data-start="982" data-end="1083"><div class="contain-inline-size rounded-2xl relative bg-token-sidebar-surface-primary"><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-bash"><span><span>git </span><span>clone</span><span> https://github.com/nickbennings/ai-study-helper.git
-   </span><span>cd</span><span> ai-study-helper
-   </span></span></code></div></div></pre>
-2. Install backend dependencies:
+Install backend dependencies:
 
-   <pre class="overflow-visible!" data-start="1121" data-end="1170"><div class="contain-inline-size rounded-2xl relative bg-token-sidebar-surface-primary"><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-bash"><span><span>pip install -r requirements.txt
-   </span></span></code></div></div></pre>
-3. Create a `.env` file in the project root and add:
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Create a .env file in the project root and add:
 
-   <pre class="overflow-visible!" data-start="1228" data-end="1316"><div class="contain-inline-size rounded-2xl relative bg-token-sidebar-surface-primary"><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-ini"><span><span>HF_API_TOKEN</span><span>=your_huggingface_token
-   </span><span>HF_MODEL</span><span>=facebook/bart-large-cnn
-   </span></span></code></div></div></pre>
-4. Run the backend (FastAPI):
+ini
+Copy
+Edit
+HF_API_TOKEN=your_huggingface_token
+HF_MODEL=facebook/bart-large-cnn
+Run the backend (FastAPI):
 
-   <pre class="overflow-visible!" data-start="1351" data-end="1398"><div class="contain-inline-size rounded-2xl relative bg-token-sidebar-surface-primary"><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-bash"><span><span>uvicorn app.main:app --reload
-   </span></span></code></div></div></pre>
+bash
+Copy
+Edit
+uvicorn app.main:app --reload
+The API will be available at http://127.0.0.1:8000.
 
-   The API will be available at `http://127.0.0.1:8000`
-5. Serve the frontend locally for testing:
+Serve the frontend locally for testing:
 
-   <pre class="overflow-visible!" data-start="1502" data-end="1554"><div class="contain-inline-size rounded-2xl relative bg-token-sidebar-surface-primary"><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-bash"><span><span>python -m http.server -d docs 5173
-   </span></span></code></div></div></pre>
+bash
+Copy
+Edit
+python -m http.server -d docs 5173
+Then open http://127.0.0.1:5173 in your browser.
 
-   Then open `http://127.0.0.1:5173` in your browser.
+Deployment
+Frontend: Deployed from the /docs folder using GitHub Pages.
 
----
+Backend: Can be deployed to a hosting service such as Render, Railway, or Hugging Face Spaces.
+Set environment variables (HF_API_TOKEN, HF_MODEL) on the host rather than committing secrets to the repository.
 
-## Deployment
-
-* **Frontend** : Deployed from the `/docs` folder using GitHub Pages.
-* **Backend** : Can be deployed to a hosting service such as Render, Railway, or Hugging Face Spaces.
-
-  Set environment variables (`HF_API_TOKEN`, `HF_MODEL`) on the host rather than committing secrets to the repository.
-
----
-
-## License
-
-This project is licensed under the MIT License
+License
+This project is licensed under the MIT License.
