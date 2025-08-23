@@ -1,9 +1,34 @@
-﻿import re
-from typing import List
-from transformers import pipeline
+﻿import os
+import re
+from typing import List, Optional
 
-# Local summarizer (no API key). First run downloads weights (cached after).
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+# Optional: load .env if present
+try:
+    from dotenv import load_dotenv  # pip install python-dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+HF_API_TOKEN = os.getenv("HF_API_TOKEN", "").strip()
+
+# If you want a different HF model, change this:
+HF_MODEL = os.getenv("HF_MODEL", "facebook/bart-large-cnn").strip()
+
+# We only import transformers if we need the local pipeline (faster start if using HF)
+_local_pipeline = None
+
+def _get_local_pipeline():
+    """Lazily create the local summarization pipeline."""
+    global _local_pipeline
+    if _local_pipeline is None:
+        # pip install transformers torch
+        from transformers import pipeline  # lazy import
+        # Your previous model choice is fine; you can swap it here if you like.
+        _local_pipeline = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+    return _local_pipeline
+
+
+# ---------- text utilities ----------
 
 def clean_text(text: str) -> str:
     t = (text or "").replace("\xa0", " ").strip()
@@ -47,6 +72,51 @@ def format_output(bullets: List[str], questions: List[str]) -> str:
         "\n\nPractice Questions:\n" + "\n".join(questions)
     )
 
+
+# ---------- Hugging Face Inference API ----------
+
+def _hf_summarize_once(text: str, max_len: int = 200, min_len: int = 60) -> Optional[str]:
+    """Call HF Inference API one time."""
+    import requests  # pip install requests
+    api_url = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"} if HF_API_TOKEN else {}
+    payload = {"inputs": text, "parameters": {"max_length": max_len, "min_length": min_len, "do_sample": False}}
+    r = requests.post(api_url, headers=headers, json=payload, timeout=60)
+    if r.status_code != 200:
+        # HF can return a 'loading' 503 while a model spins up; surface a readable error
+        return None
+    data = r.json()
+    # bart-like models return [{"summary_text": "..."}]
+    try:
+        return data[0]["summary_text"]
+    except Exception:
+        # some models return a different shape
+        return None
+
+
+def _local_summarize_once(text: str, max_len: int = 200, min_len: int = 60) -> str:
+    pipe = _get_local_pipeline()
+    out = pipe(text, max_length=max_len, min_length=min_len, do_sample=False)
+    return out[0]["summary_text"]
+
+
+# ---------- main entry ----------
+
+def _summarize_chunks(chunks: List[str]) -> List[str]:
+    """Summarize each chunk using HF if token present, else local pipeline."""
+    results: List[str] = []
+    for ch in chunks:
+        if HF_API_TOKEN:
+            s = _hf_summarize_once(ch, max_len=160, min_len=60)
+            if s is None:
+                # fall back to local if HF failed (cold start, rate limit, etc.)
+                s = _local_summarize_once(ch, max_len=160, min_len=60)
+        else:
+            s = _local_summarize_once(ch, max_len=160, min_len=60)
+        results.append(s)
+    return results
+
+
 def summarize_text(raw_text: str) -> str:
     try:
         if not raw_text or raw_text.lower().startswith("error"):
@@ -57,17 +127,18 @@ def summarize_text(raw_text: str) -> str:
             return "Error summarizing: extracted text was empty after cleaning."
 
         pieces = chunk_text(text, max_chars=1800)
-        piece_summaries = []
-        for ch in pieces:
-            out = summarizer(ch, max_length=160, min_length=60, do_sample=False)
-            piece_summaries.append(out[0]["summary_text"])
+        piece_summaries = _summarize_chunks(pieces)
 
-        combined = " ".join(piece_summaries)
-        final = summarizer(combined, max_length=200, min_length=80, do_sample=False)[0]["summary_text"]
+        combined = " ".join(piece_summaries)[:4000]
+        # final pass to tighten
+        if HF_API_TOKEN:
+            final = _hf_summarize_once(combined, max_len=200, min_len=80) or _local_summarize_once(combined, max_len=200, min_len=80)
+        else:
+            final = _local_summarize_once(combined, max_len=200, min_len=80)
 
         bullets = bulletize(final, max_points=5)
         questions = make_questions(final)
         return format_output(bullets, questions)
 
     except Exception as e:
-        return f"Error summarizing (local model): {e}"
+        return f"Error summarizing: {e}"

@@ -9,3 +9,6 @@ torch==2.8.0
 youtube-transcript-api==0.6.2
 newspaper3k==0.2.8
 lxml_html_clean==0.4.2
+
+requests==2.32.3
+python-dotenv==1.0.1
